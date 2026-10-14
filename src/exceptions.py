@@ -1,0 +1,2 @@
+class InvalidDatasetStructureError (Exception):
+  pass

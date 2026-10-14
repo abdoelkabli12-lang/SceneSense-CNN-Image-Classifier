@@ -2,7 +2,7 @@ import os
 from collections import Counter, defaultdict
 import matplotlib.pyplot as plt
 import seaborn as sns
-from data import count_files_by_type, select_random_samples, split_dataset
+from data import count_files_by_type, select_random_samples
 from PIL import Image
 
 folders = [
@@ -67,6 +67,3 @@ for folder in folders:
 
     plt.tight_layout()
     plt.show()
-
-
-print(split_dataset("data/splits/"))
