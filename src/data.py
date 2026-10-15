@@ -6,6 +6,16 @@ from sklearn.model_selection import train_test_split
 import json
 from exceptions import InvalidDatasetStructureError
 
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+
+DATASET_ROOT = os.path.expanduser("~/data/splits/seg_train")
+
 SEED = 42
 
 CLASS_MAPPING = {
@@ -33,7 +43,7 @@ def save_class_mappings(mapping):
 
 mis = []
 
-def load_dataset(root_or_manifest, seed=SEED, shuffle=False, buffer_size=128, augment=False):
+def load_dataset(root_or_manifest, seed=SEED, shuffle=False, buffer_size=None, augment=False):
     dirs = set({})
     x = []
     y = []
@@ -72,9 +82,9 @@ def image_process(image_path, image_size=(150, 150)):
     return resized_image
 
 def preprocess(ds, batch_size=32, augment=False):
-    processed_images = ds.map(lambda x, y: (image_process(x), y))
+    processed_images = ds.map(lambda x, y: (image_process(x), y),num_parallel_calls=tf.data.AUTOTUNE)
     if augment == True:
-        processed_images = processed_images.map(lambda x, y: (augment_image(x), y))
+        processed_images = processed_images.map(lambda x, y: (augment_image(x), y),num_parallel_calls=tf.data.AUTOTUNE)
     batched_images = processed_images.batch(batch_size=batch_size)
     prefetched = batched_images.prefetch(tf.data.AUTOTUNE)
     return prefetched
@@ -118,52 +128,53 @@ def select_random_samples(directory, sample_size=24, seed=SEED):
 
 
 
-DATASET_ROOT = "data/splits/seg_train"
 
-train_ds, val_ds, test_ds = load_dataset(
-    DATASET_ROOT,
-    shuffle=True,
-    augment=True
-)
 
-# 1. Dataset sizes
-print("Train batches:", tf.data.experimental.cardinality(train_ds).numpy())
-print("Validation batches:", tf.data.experimental.cardinality(val_ds).numpy())
-print("Test batches:", tf.data.experimental.cardinality(test_ds).numpy())
 
-# 2. Inspect one training batch
-images, labels = next(iter(train_ds))
+# train_ds, val_ds, test_ds = load_dataset(
+#     DATASET_ROOT,
+#     shuffle=True,
+#     augment=True
+# )
 
-print("\n--- Training batch ---")
-print("Images shape:", images.shape)
-print("Labels shape:", labels.shape)
-print("Images dtype:", images.dtype)
-print("Labels dtype:", labels.dtype)
-print("Pixel minimum:", tf.reduce_min(images).numpy())
-print("Pixel maximum:", tf.reduce_max(images).numpy())
+# # 1. Dataset sizes
+# print("Train batches:", tf.data.experimental.cardinality(train_ds).numpy())
+# print("Validation batches:", tf.data.experimental.cardinality(val_ds).numpy())
+# print("Test batches:", tf.data.experimental.cardinality(test_ds).numpy())
 
-# 3. Check class distribution in the original dataset
-for class_name, class_id in CLASS_MAPPING.items():
-    print(
-        f"{class_name} (ID {class_id}):",
-        sum(1 for label in labels.numpy() if label == class_id),
-        "images in this batch"
-    )
+# # 2. Inspect one training batch
+# images, labels = next(iter(train_ds))
 
-# 4. Inspect validation batch
-val_images, val_labels = next(iter(val_ds))
-print("\n--- Validation batch ---")
-print("Images shape:", val_images.shape)
-print("Labels shape:", val_labels.shape)
+# print("\n--- Training batch ---")
+# print("Images shape:", images.shape)
+# print("Labels shape:", labels.shape)
+# print("Images dtype:", images.dtype)
+# print("Labels dtype:", labels.dtype)
+# print("Pixel minimum:", tf.reduce_min(images).numpy())
+# print("Pixel maximum:", tf.reduce_max(images).numpy())
 
-# 5. Inspect test batch
-test_images, test_labels = next(iter(test_ds))
-print("\n--- Test batch ---")
-print("Images shape:", test_images.shape)
-print("Labels shape:", test_labels.shape)
+# # 3. Check class distribution in the original dataset
+# for class_name, class_id in CLASS_MAPPING.items():
+#     print(
+#         f"{class_name} (ID {class_id}):",
+#         sum(1 for label in labels.numpy() if label == class_id),
+#         "images in this batch"
+#     )
 
-# 6. Verify split sizes
-print("\n--- Split sizes ---")
-print("Train samples:", sum(1 for _ in train_ds.unbatch()))
-print("Validation samples:", sum(1 for _ in val_ds.unbatch()))
-print("Test samples:", sum(1 for _ in test_ds.unbatch()))
+# # 4. Inspect validation batch
+# val_images, val_labels = next(iter(val_ds))
+# print("\n--- Validation batch ---")
+# print("Images shape:", val_images.shape)
+# print("Labels shape:", val_labels.shape)
+
+# # 5. Inspect test batch
+# test_images, test_labels = next(iter(test_ds))
+# print("\n--- Test batch ---")
+# print("Images shape:", test_images.shape)
+# print("Labels shape:", test_labels.shape)
+
+# # 6. Verify split sizes
+# print("\n--- Split sizes ---")
+# print("Train samples:", sum(1 for _ in train_ds.unbatch()))
+# print("Validation samples:", sum(1 for _ in val_ds.unbatch()))
+# print("Test samples:", sum(1 for _ in test_ds.unbatch()))
