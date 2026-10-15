@@ -43,7 +43,7 @@ def save_class_mappings(mapping):
 
 mis = []
 
-def load_dataset(root_or_manifest, seed=SEED, shuffle=False, buffer_size=None, augment=False):
+def load_dataset(root_or_manifest, seed=SEED, shuffle=False, buffer_size=1000, augment=False):
     dirs = set({})
     x = []
     y = []
@@ -101,9 +101,9 @@ contrast = tf.keras.layers.RandomContrast(factor=0.1)
 def augment_image(image):
     flipped_image = flip(image)
     rotated_image = rotate(flipped_image)
-    zoomed_image = zoom(rotated_image)
-    translated_image = translate(zoomed_image)
-    contrasted_image = contrast(translated_image)
+    # zoomed_image = zoom(rotated_image)
+    # translated_image = translate(zoomed_image)
+    contrasted_image = contrast(rotated_image)
     return contrasted_image
 
 def count_files_by_type(directory):

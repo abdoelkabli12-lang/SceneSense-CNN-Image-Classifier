@@ -1,8 +1,12 @@
 import tensorflow as tf
 from data import load_dataset
 from model import build_model
+import os
+import json
 
-train_ds, val_ds, test_ds = load_dataset("data/splits/seg_train")
+DATASET_ROOT = os.path.expanduser("~/data/splits/seg_train")
+
+train_ds, val_ds, test_ds = load_dataset(DATASET_ROOT, augment=True, shuffle=True)
 
 model = build_model()
 
@@ -32,7 +36,10 @@ callbacks = [early_stopping, reduce_lr, model_checkpoint]
 
 history = model.fit(
   x=train_ds,
-  epochs=30,
+  epochs=36,
   validation_data=val_ds,
   callbacks=callbacks
 )
+
+with open ("models/training_history.json", "w") as f:
+  json.dump(history.history, f, indent=4)
