@@ -17,7 +17,7 @@ def build_model(num_classes=6, image_size=(150,150), dropout=0.3, kernel_size=(3
           64,
           kernel_size=kernel_size,
           strides=(1,1),
-          padding='valid',
+          padding='same',
           activation='relu'
         ),
     tf.keras.layers.MaxPooling2D(),
@@ -25,7 +25,7 @@ def build_model(num_classes=6, image_size=(150,150), dropout=0.3, kernel_size=(3
               128,
               kernel_size=kernel_size,
               strides=(1,1),
-              padding='valid',
+              padding='same',
               activation='relu'
             ),
     tf.keras.layers.MaxPooling2D(),

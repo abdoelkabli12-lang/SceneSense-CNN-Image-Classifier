@@ -34,3 +34,5 @@ Desktop.ini
 
 # Temporary VS Code Code Runner file
 src/tempCodeRunnerFile.py
+
+.venv-win
