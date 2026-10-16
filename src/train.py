@@ -4,7 +4,7 @@ from model import build_model
 import os
 import json
 
-DATASET_ROOT = os.path.expanduser("~/data/splits/seg_train")
+DATASET_ROOT = os.path.expanduser("data/splits/seg_train")
 
 train_ds, val_ds, test_ds = load_dataset(DATASET_ROOT, augment=True, shuffle=True)
 

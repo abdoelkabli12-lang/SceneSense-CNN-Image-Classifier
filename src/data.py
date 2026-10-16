@@ -101,9 +101,9 @@ contrast = tf.keras.layers.RandomContrast(factor=0.1)
 def augment_image(image):
     flipped_image = flip(image)
     rotated_image = rotate(flipped_image)
-    # zoomed_image = zoom(rotated_image)
-    # translated_image = translate(zoomed_image)
-    contrasted_image = contrast(rotated_image)
+    zoomed_image = zoom(rotated_image)
+    translated_image = translate(zoomed_image)
+    contrasted_image = contrast(translated_image)
     return contrasted_image
 
 def count_files_by_type(directory):
